@@ -1,3 +1,4 @@
+use std::error::Error;
 use std::{env, fs, process};
 
 struct Config {
@@ -17,6 +18,13 @@ impl Config {
     }
 }
 
+fn run(config: Config) -> Result<(), Box<dyn Error>> {
+    // Box<dyn Error> indica un type che implementa il trait (padre) Error, lo spiega al capitolo 17
+    let contents = fs::read_to_string(config.filename)?; // ? = return Err(message)
+    println!("With text:\n{}", contents);
+    Ok(())
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -26,8 +34,8 @@ fn main() {
     });
     println!("Searching for {}", config.query);
     println!("In file {}", config.filename);
-
-    let contents = fs::read_to_string(config.filename)
-        .expect("Something went wrong reading the file");
-    println!("{}", contents);
+    if let Err(e) = run(config) {
+        println!("Application error: {}", e);
+        process::exit(1);
+    }
 }
