@@ -7,21 +7,25 @@ pub struct Config {
     pub case_sensitive: bool,
 }
 impl Config {
-    pub fn new(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() < 3 {
-            return Err("not enough arguments");
-        }
+    pub fn new(mut args: std::env::Args) -> Result<Config, &'static str> {
+        
+        args.next();
 
-        let query = args[1].clone();
-        let filename = args[2].clone();
+        let query = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a query strinseg"),
+        };
+
+        let filename = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a file name"),
+        };
+
         let case_insensitive_value = env::var("CASE_INSENSITIVE").unwrap_or(String::from("0"));
 
-        Ok(Config {
-            query,
-            filename,
-            case_sensitive: case_insensitive_value=="0",
-        })
-    }
+
+        Ok(Config { query, filename, case_sensitive: case_insensitive_value=="0" })
+        }
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
