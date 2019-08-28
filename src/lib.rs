@@ -8,7 +8,6 @@ pub struct Config {
 }
 impl Config {
     pub fn new(mut args: std::env::Args) -> Result<Config, &'static str> {
-        
         args.next();
 
         let query = match args.next() {
@@ -23,9 +22,12 @@ impl Config {
 
         let case_insensitive_value = env::var("CASE_INSENSITIVE").unwrap_or(String::from("0"));
 
-
-        Ok(Config { query, filename, case_sensitive: case_insensitive_value=="0" })
-        }
+        Ok(Config {
+            query,
+            filename,
+            case_sensitive: case_insensitive_value == "0",
+        })
+    }
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
@@ -43,14 +45,10 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 }
 
 pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let mut results = Vec::new();
-
-    for line in contents.lines() {
-        if line.contains(query) {
-            results.push(line);
-        }
-    }
-    results
+    contents
+        .lines()
+        .filter(|line| line.contains(query))
+        .collect()
 }
 
 pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
